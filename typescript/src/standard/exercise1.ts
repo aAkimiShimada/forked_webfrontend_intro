@@ -8,12 +8,16 @@
 * */
 
 // 以下のコードのコメントアウトを外して修正を行う
-// {
-//   const name = 'taro'
+{
+  const name = 'taro' as const;
 
-//   const obj = {
-//     name // 省略記法 name: name と同じ
-//   }
+  var obj: { name: "taro" } = {
+    name // 省略記法 name: name と同じ
+  };
 
-//   obj.name = 'jiro'
-// }
+  const newObj = {
+	...obj,
+	name: "jiro"
+  };
+
+}

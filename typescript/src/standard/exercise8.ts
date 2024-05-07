@@ -6,18 +6,23 @@
 * */
 
 // 以下のコードのコメントアウトを外して修正を行う
-// {
-//   const hogeUser: { id: number, name: string } = {
-//     id: 1,
-//     name: 'taro'
-//   }
-  
-//   function updateFugaUserName(user: { id: number, name: string }, newName: string): { id: number, name: string } {
-//     return {
-//       id: user.id,
-//       name: newName
-//     }
-//   }
-  
-//   console.log(updateFugaUserName(hogeUser, 'jiro'))
-// }
+{
+	interface User {
+		id: number,
+		name: string
+	}
+
+	const hogeUser: User = {
+		id: 1,
+		name: 'taro'
+	}
+
+	function updateFugaUserName(user: User, newName: string): User {
+		return {
+			id: user.id,
+			name: newName
+		}
+	}
+
+	console.log(updateFugaUserName(hogeUser, 'jiro'))
+}
