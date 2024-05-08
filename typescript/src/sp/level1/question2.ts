@@ -5,18 +5,24 @@
 * */
 
 // 以下のコードのコメントアウトを外して修正を行う
-// {
-//   function showUserInfo(user: User) {
-//     // 省略
-//   }
-  
-//   // 使用例
-//   showUserInfo({
-//     name: 'John Smith',
-//     age: 16,
-//     private: false,
-//   })
-  
+{
+  interface User {
+	name: string,
+	age: number,
+	private: boolean
+  }
+
+  function showUserInfo(user: User) {
+    console.log(user)
+  }
+
+  // 使用例
+  showUserInfo({
+    name: 'John Smith',
+    age: 16,
+    private: false,
+  })
+
 //   // エラー例
 //   showUserInfo({
 //     name: 'Mary Sue',
@@ -26,4 +32,4 @@
 //     name: 'Gombe Nanashino',
 //     age: 100,
 //   }
-// }
+}

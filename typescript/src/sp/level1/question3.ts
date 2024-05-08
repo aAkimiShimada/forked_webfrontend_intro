@@ -4,13 +4,14 @@
 * */
 
 // 以下のコードのコメントアウトを外して修正を行う
-// {
-//   const isPositive: IsPositiveFunc = (num) => num >= 0
+{
+  type IsPositiveFunc = (target:number) => boolean;
+  const isPositive: IsPositiveFunc = (num) => num >= 0
 
-//   // 使用例
-//   isPositive(5)
+  // 使用例
+  console.log( isPositive(5) )
 
 //   // エラー例
 //   isPositive('foo')
 //   const res: number = isPositive(123)
-// }
+}

@@ -5,25 +5,28 @@
 * */
 
 // 以下のコードのコメントアウトを外して修正を行う
-// {
-//   type Speed = /* ここを入力 */
-  
-//   function getSpeed(speed: Speed): number {
-//     switch (speed) {
-//       case 'slow':
-//         return 10
-//       case 'medium':
-//         return 50
-//       case 'fast':
-//         return 200
-//     }
-//   }
-  
-//   // 使用例
-//   const slowSpeed = getSpeed('slow')
-//   const mediumSpeed = getSpeed('medium')
-//   const fastSpeed = getSpeed('fast')
-  
+{
+  type Speed = "slow" | "medium" | "fast" /* ここを入力 */
+
+  function getSpeed(speed: Speed): number {
+    switch (speed) {
+      case 'slow':
+        return 10
+      case 'medium':
+        return 50
+      case 'fast':
+        return 200
+    }
+  }
+
+  // 使用例
+  const slowSpeed = getSpeed('slow')
+  const mediumSpeed = getSpeed('medium')
+  const fastSpeed = getSpeed('fast')
+  console.log(slowSpeed)
+  console.log(mediumSpeed)
+  console.log(fastSpeed)
+
 //   // エラー例
 //   getSpeed('veryfast')
-// }
+}

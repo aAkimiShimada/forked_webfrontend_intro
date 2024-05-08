@@ -6,7 +6,7 @@
 // 以下のコードのコメントアウトを外して修正を行う
 {
   const func = (num?: number): number => {
-	return !num ? 0 : num
+	  return !num ? 0 : num
   }
   console.log(func()) // 0
   console.log(func(10)) // 10
