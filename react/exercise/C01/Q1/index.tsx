@@ -10,11 +10,9 @@ import "./style.css";
 const ChildComponent: FC = () => {
   return (
     <div>
-      {/*
-        // 赤色の物の名前を入力し、赤色で表示
-        // 緑色の物の名前を入力し、緑色で表示
-        // 青色の物の名前を入力し、青色で表示
-		*/}
+      <div className="red">トマト</div>
+      <div className="green">ほうれん草</div>
+      <div className="blue">隣の芝</div>
     </div>
   );
 };
