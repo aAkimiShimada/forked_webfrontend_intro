@@ -6,4 +6,7 @@
 //
 import { createRoot } from "react-dom/client";
 
-createRoot(document.body).render(<h1>Hello, world!</h1>);
+const firstName = "Akimi";
+const lastName = "Shimada";
+
+createRoot(document.body).render(<h1>Hello, {firstName} {lastName}!</h1>);
