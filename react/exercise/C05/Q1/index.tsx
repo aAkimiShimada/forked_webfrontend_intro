@@ -34,7 +34,7 @@ const isValidValue = (value: string): boolean =>
 
 const ListItem: FC<ListItemProps> = (props) => {
   const { value } = props;
-  return <div className={isValidValue(value) ? "blue" : "red"}>{value}</div>;
+  return <div className={isValidValue(value) ? "red" : "blue"}>{value}</div>;
 };
 
 const ChildComponent: FC = () => {

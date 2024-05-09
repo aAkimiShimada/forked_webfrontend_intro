@@ -13,11 +13,16 @@ import "./style.css";
 const Counter: FC = () => {
   const [count, setCount] = useState<number>(0);
   const increment = () => setCount(count + 1);
+  const decrement = () => setCount(count - 1);
+
+  const isZero = count <= 0;
+  const counterClass = count % 2 == 0 ? "evenNumber" : "oddNumber";
 
   return (
     <div>
-      <p>Counter: {count}</p>
-      <button onClick={increment}>+</button>
+      <p>Counter: <span className={counterClass}>{count}</span></p>
+      <button type="button" onClick={decrement} disabled={isZero}>-</button>
+      <button type="button" onClick={increment}>+</button>
     </div>
   );
 };
