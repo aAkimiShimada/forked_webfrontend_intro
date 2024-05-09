@@ -32,6 +32,16 @@ function UserInfo(props: User) {
   );
 }
 
+interface Button {
+  label: string
+}
+
+function ActionButton(props: Button) {
+  return (
+    <input type="button" value={props.label} />
+  )
+}
+
 interface Props {
   date: Date;
   text: string;
@@ -44,6 +54,11 @@ function Comment(props: Props) {
       <UserInfo avatarUrl={props.author.avatarUrl} name={props.author.name} />
       <div className="comment-text">{props.text}</div>
       <div className="comment-date">{formatDate(props.date)}</div>
+      <div className="actions">
+        <ActionButton label="Reply" />
+        <ActionButton label="Retweet" />
+        <ActionButton label="Favorite" />
+      </div>
     </div>
   );
 }

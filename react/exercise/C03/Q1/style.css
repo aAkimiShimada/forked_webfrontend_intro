@@ -39,9 +39,21 @@ body {
 }
 
 .comment-text {
+  font-size: 1.6rem;
 }
 
 .comment-date {
   color: gray;
   font-size: 1.4rem;
+}
+
+.actions {
+  position: relative;
+  display: block flex;
+  width: 100%;
+  flex-direction: row;
+  justify-content: center;
+}
+.actions > input[type="button"] {
+  margin: 0.5rem 1rem;
 }
