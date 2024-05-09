@@ -15,12 +15,24 @@ import "./style.css";
 // Button を押したら 'Clicked Button', Div を押したら 'Clicked Div' と表示されるようにする
 
 const ChildComponent: FC = () => {
+
+  function onButtonPressed(e: React.MouseEvent) {
+    e.stopPropagation();
+    console.log("button pressed");
+  }
+
+  function onDivPressed(e: React.MouseEvent) {
+    e.stopPropagation();
+    console.log("div pressed");
+  }
+
   return (
     <div className="subContainer">
-      <button className="button">Button</button>
-      <div className="area">Div</div>
+      <button type="button" className="button" onClick={onButtonPressed}>Button</button>
+      <div className="area" onClick={onDivPressed}>Div</div>
     </div>
   );
+
 };
 
 const App: FC = () => {

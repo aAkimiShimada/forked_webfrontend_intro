@@ -6,7 +6,21 @@
 //
 import { createRoot } from "react-dom/client";
 
-const firstName = "Akimi";
-const lastName = "Shimada";
+interface User {
+	firstName: string,
+	lastName: string
+}
 
-createRoot(document.body).render(<h1>Hello, {firstName} {lastName}!</h1>);
+
+function nameView(user:User) {
+	return (
+		<h1>Hello, {user.firstName} {user.lastName}!</h1>
+	)
+}
+
+const myself: User = {
+	firstName: "Akimi",
+	lastName: "Shimada"
+}
+
+createRoot(document.body).render(nameView(myself));
