@@ -2,50 +2,60 @@ import { FC, useReducer, useState, useCallback } from "react";
 import { createRoot } from "react-dom/client";
 import "./style.css";
 
-type ActionTypes = { [P in "toggle" | "on" | "off"]: string };
-const actionTypes: ActionTypes = {
-  toggle: "TOGGLE",
-  on: "ON",
-  off: "OFF",
-};
+interface State {
+  on: boolean,
+  toggled: number,
+  warning: boolean
+}
+type ActionType = "TOGGLE" | "ON" | "OFF" | "RESET"
+interface Action { type: ActionType }
 
+// トグルの上限
 const TOO_MANY_CLICKS = 4;
-const initialState = { on: false };
+const initialState: State = { on: false, toggled: 0, warning: false };
 
-const toggleSwitchReducer = (state, action) => {
+const toggleSwitchReducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case actionTypes.toggle:
-      return { on: !state.on };
-    case actionTypes.on:
-      return { on: true };
-    case actionTypes.off:
-      return { on: false };
+    case "TOGGLE":
+      if (state.toggled>=TOO_MANY_CLICKS) return {
+        on: state.on,
+        toggled: TOO_MANY_CLICKS,
+        warning: true
+      }
+      else return {
+        on: !state.on,
+        toggled: state.toggled + 1,
+        warning: false
+      };
+    case "ON":
+      return {
+        on: true,
+        toggled: state.toggled,
+        warning: state.warning
+      };
+    case "OFF":
+      return {
+        on: false,
+        toggled: state.toggled,
+        warning: state.warning
+      };
+    case "RESET":
+      return {
+        on: state.on,
+        toggled: 0,
+        warning: false
+      };
     default:
       throw new Error(`unknown action type: ${action.type}`);
   }
 };
 
-function useToggleSwitch({ reducer = toggleSwitchReducer } = {}): [
-  boolean,
-  () => void,
-  () => void,
-  () => void
-] {
-  const [{ on }, dispatch] = useReducer(reducer, initialState);
-
-  const toggle = () => dispatch({ type: actionTypes.toggle });
-  const setON = () => dispatch({ type: actionTypes.on });
-  const setOFF = () => dispatch({ type: actionTypes.off });
-
-  return [on, toggle, setON, setOFF];
-}
-
-type Props = {
+// トグルスイッチの実装
+type ToggleProps = {
   on: boolean;
   onClick: () => void;
 };
-
-const ToggleSwitch: FC<Props> = (props) => {
+const ToggleSwitch: FC<ToggleProps> = (props) => {
   const { on, onClick } = props;
   const toggleStyle = ["toggleBtn", on ? "toggleBtnOn" : "toggleBtnOff"]
     .filter(Boolean)
@@ -64,36 +74,70 @@ const ToggleSwitch: FC<Props> = (props) => {
   );
 };
 
+// UI ボタン生成の引数
+interface ButtonProps {
+  label: string,
+  action: ActionType,
+  disabled: boolean
+}
+
 const TestApp: FC = () => {
-  const [clicksSinceReset, setClicksSinceReset] = useState<number>(0);
 
-  const [on, toggle, setON, setOFF] =
-    useToggleSwitch(/*{
-    reducer(currentState, action) {
-      // 課題: reducerをカスタマイズしてください
-      // TODO: トグルアクションが TOO_MANY_CLICKS 回以上のとき、on状態を固定化する
-      // TODO: ON, OFFアクション時は、制限なしとする
-    }
-  }*/);
+  const [state, dispatch] = useReducer(toggleSwitchReducer,initialState);
 
-  const handleClick = useCallback(() => {
-    toggle();
-    setClicksSinceReset(clicksSinceReset + 1);
-  }, [clicksSinceReset]); // useCallbackは、「第11章 値の同一性を理解する」で説明。
+  // ボタンの生成
+  function Button(props: ButtonProps) {
 
-  return (
-    <>
-      <p className="formGroup">
-        <button onClick={setOFF}>OFF</button>
-        <button onClick={setON}>ON</button>
-        {/* TODO: TOO_MANY_CLICKS 回以上のとき Reset ボタンを表示する */}
-      </p>
+    const cb_func = useCallback(
+      () => {
+        dispatch({ type: props.action })
+      },
+      [state]
+    );
 
-      <p className="toggleGroup">
-        <ToggleSwitch on={on} onClick={handleClick} />
-      </p>
-    </>
+    return (
+      <button
+        type="button"
+        disabled={props.disabled}
+        onClick={cb_func}>{props.label}</button>
+    )
+  }
+
+  // トグルスイッチのクリックのアクション
+  const toggling = useCallback(
+    () => {
+      dispatch({ type: "TOGGLE" })
+    },
+    [state]
   );
+
+  const resettable = state.toggled != 0;
+
+  let doms = [
+    <p className="formGroup">
+      <Button
+        label="OFF" action="OFF"
+        disabled={false} />
+      <Button
+        label="ON" action="ON"
+        disabled={false} />
+      <Button
+        label="RESET" action="RESET"
+        disabled={!resettable} />
+    </p>,
+    <p className="toggleGroup">
+      <ToggleSwitch on={state.on} onClick={toggling} />
+    </p>
+  ];
+
+  if (state.warning) doms.push(
+    <div id="warning">
+      <p>You have toggled the switch too many times.</p>
+      <p>To toggle it again, press the reset button.</p>
+    </div>
+  );
+
+  return <> {doms} </>;
 };
 
 createRoot(document.getElementById("root")!).render(<TestApp />);

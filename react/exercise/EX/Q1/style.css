@@ -97,3 +97,9 @@ button:focus {
   flex-direction: row;
   justify-content: center;
 }
+
+#warning > p {
+  text-align: center;
+  font-size: 20px;
+  font-family: sans-serif;
+}
