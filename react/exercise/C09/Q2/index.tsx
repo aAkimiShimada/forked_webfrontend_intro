@@ -17,7 +17,7 @@
 //
 // `action` は必要に応じて追加してください。
 //
-import { FC, useReducer, useCallback } from "react";
+import { FC, useReducer, useCallback, useMemo, memo } from "react";
 import { createRoot } from "react-dom/client";
 import "./style.css";
 
@@ -86,21 +86,15 @@ const reducer = (state: ChildComponentState, action: ChildComponentActions): Chi
   switch(action.type) {
     case "SET_FUEL_AMOUNT":
       const payload = action.payload!;
-
       return {
         fuelAmount: payload,
-        mode: payload == 100 ? CurrentMode.FULFILLED : CurrentMode.INITIAL
+        mode: payload > 99 ? CurrentMode.FULFILLED : CurrentMode.INITIAL
       };
     case "OPEN_GATE":
-      return {
-        fuelAmount: state.fuelAmount,
-        mode: CurrentMode.OPENED
+      return { ...state, mode: CurrentMode.OPENED
       };
     case "LAUNCH_CAR":
-      return {
-        fuelAmount: state.fuelAmount,
-        mode: CurrentMode.LAUNCHED
-      };
+      return { ...state, mode: CurrentMode.LAUNCHED };
     case "RESET_STATE":
       return initialState;
   }
@@ -112,20 +106,27 @@ const initialState: ChildComponentState = {
   mode: CurrentMode.INITIAL
 };
 
-// UI ボタン生成の引数
-interface ButtonProps {
-  label: string,
-  action: ChildComponentActionType,
-  disabled: boolean
-}
+// スライダーの描画モードの指定
+// スライダーのコンポーザ関数が受け取る引数の数ごとに分けている
+// 2 args の方はスライダーが滑らかに動くのに対して、 0 args の方はスライダーがもっさり動くことが確認されている
+type SliderRenderMode = "2 args" | "0 args";
+const renderMode: SliderRenderMode = "0 args";
 
 const ChildComponent: FC = () => {
 
   // useState が乱立しているので useReducer を用いてまとめましょう
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  // Disabled flags
-  // useReducer の state を活用するようにしましょう
+  // インジケータフラグ
+  const isFulfilled =
+    state.mode != CurrentMode.INITIAL;
+  const isOpened =
+    state.mode == CurrentMode.OPENED ||
+    state.mode == CurrentMode.LAUNCHED;
+  const isLaunched =
+    state.mode == CurrentMode.LAUNCHED;
+
+  // スライダー/ボタンの無効化フラグ
   const fuelRangeDisabled =
     state.mode != CurrentMode.INITIAL;
   const openButtonDisabled =
@@ -136,53 +137,83 @@ const ChildComponent: FC = () => {
     state.mode == CurrentMode.INITIAL &&
     state.fuelAmount == 0;
 
-  const isFulfilled = state.mode != CurrentMode.INITIAL;
-  const isOpened = state.mode == CurrentMode.OPENED || state.mode == CurrentMode.LAUNCHED;
-  const isLaunched = state.mode == CurrentMode.LAUNCHED;
-
-  function Button(props: ButtonProps) {
-
-    const cb_func = useCallback(
-      () => {
-        dispatch({ type: props.action })
-      },
-      [state]
-    );
-
-    return (
-      <button
-        type="button"
-        disabled={props.disabled}
-        onClick={cb_func}>{props.label}</button>
-    )
-
+  // ボタン生成の引数
+  interface ButtonProps {
+    label: string,
+    action: ChildComponentActionType,
+    disabled: boolean
   }
 
-  function Range(_props: {}) {
+  // ボタンの生成
+  const Button = useCallback((props: ButtonProps) => {
 
-    const cb_func = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => {
+    const {label,disabled,action} = props;
+
+    const onClick = () => {
+      dispatch({ type: action })
+    };
+
+    return (
+      <button type="button"
+        disabled={disabled}
+        onClick={onClick}>{label}</button>
+    )
+
+  },[]);
+
+  // スライダー生成の引数
+  interface SliderProps {
+    value: number,
+    disabled: boolean
+  }
+
+  // スライダーの生成
+  const Slider =
+
+    renderMode == "2 args" ?
+    useCallback((props: SliderProps) => {
+
+      const {value,disabled} = props;
+
+      const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         dispatch({
           type: "SET_FUEL_AMOUNT",
           payload: parseInt(e.target.value)
         })
-      },
-      [state]
-    );
+      };
 
-    return <input
-      type="range"
-      id="fuel"
-      name="fuelTank"
-      min="0"
-      max="100"
-      step="1"
-      value={state.fuelAmount}
-      onChange={cb_func}
-      disabled={fuelRangeDisabled}
-    />;
+      return (
+        <input
+          type="range" id="fuel" name="fuelTank"
+          min="0" max="100" step="1"
+          value={value} disabled={disabled}
+          onChange={onChange} />
+      );
 
-  }
+    }, [] ) :
+
+    renderMode == "0 args" ?
+    useCallback((_props: {}) => {
+
+      const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch({
+          type: "SET_FUEL_AMOUNT",
+          payload: parseInt(e.target.value)
+        })
+      };
+
+      return (
+        <input
+          type="range" id="fuel" name="fuelTank"
+          min="0" max="100" step="1"
+          value={state.fuelAmount}
+          disabled={fuelRangeDisabled}
+          onChange={onChange} />
+      );
+
+    }, [state.fuelAmount,fuelRangeDisabled] ) :
+
+    () => ( <></> );
 
   // Fuel Range Label
   // useReducer の state を活用するようにしましょう
@@ -197,7 +228,16 @@ const ChildComponent: FC = () => {
         opened={isOpened}
         launched={isLaunched}
       />
-      <Range />
+      {
+        renderMode == "2 args" ? (
+          <Slider
+            value={state.fuelAmount}
+            disabled={fuelRangeDisabled} />
+        ) :
+        renderMode == "0 args" ?
+        ( <Slider /> ) :
+        ( <></> )
+      }
       <label htmlFor="fuel"> {fuelLabelText} </label>
       <Button
         label="Open the gate"
