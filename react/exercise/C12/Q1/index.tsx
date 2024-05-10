@@ -32,41 +32,70 @@ function fetchDummyProfile(): Promise<User> {
   });
 }
 
-const UserProfile: FC = () => {
-  const user: User = {
-    name: "anonymous",
-    age: 0,
-    gender: "female",
-    email: "anonymous@gmail.com",
-    avatar:
-      "data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
-  };
-
+// 生の User を表示する関数
+function RenderUser(user:User) {
   return (
-    <>
-      <div className="container">
-        <img src={user.avatar} className="avatar" alt="avatar" />
-        <div className="profile">
-          <p>
-            <span>Name: </span>
-            <span>{user.name}</span>
-          </p>
-          <p>
-            <span>Age: </span>
-            <span>{user.age}</span>
-          </p>
-          <p>
-            <span>Gender: </span>
-            <span>{user.gender}</span>
-          </p>
-          <p>
-            <span>Email: </span>
-            <span>{user.email}</span>
-          </p>
-        </div>
+    <div className="container">
+      <img src={user.avatar} className="avatar" alt="avatar" />
+      <div className="profile">
+        <p>
+          <span>Name: </span>
+          <span>{user.name}</span>
+        </p>
+        <p>
+          <span>Age: </span>
+          <span>{user.age}</span>
+        </p>
+        <p>
+          <span>Gender: </span>
+          <span>{user.gender}</span>
+        </p>
+        <p>
+          <span>Email: </span>
+          <span>{user.email}</span>
+        </p>
       </div>
-    </>
+    </div>
+  )
+}
+
+// 読み込み中を表示する関数
+function Loading(_props:{}) {
+  return ( <p>Now Loading...</p> );
+}
+
+// Promise で User を表示する関数
+function PromisedRenderUser(
+  {promise}:{promise:Promise<User>}
+) {
+  const [user, setUser] = useState<User|null>(null);
+  useEffect( () => {
+    promise.then(
+      (user:User) => {
+        setUser(user);
+      }
+    );
+  }, [""]);
+  return (
+    user!=null ?
+    <RenderUser {...user} /> :
+    <Loading />
   );
+}
+
+const UserProfile: FC = () => {
+  // const user: User = {
+  //   name: "anonymous",
+  //   age: 0,
+  //   gender: "female",
+  //   email: "anonymous@gmail.com",
+  //   avatar:
+  //     "data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+  // };
+
+  const fetchPromise = fetchDummyProfile();
+
+  return ( <PromisedRenderUser promise={fetchPromise} /> );
 };
 
 createRoot(document.getElementById("root")!).render(<UserProfile />);
